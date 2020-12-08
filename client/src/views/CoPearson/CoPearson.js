@@ -285,8 +285,8 @@ console.log(data);
             </Grid >
           <Card>
             <CardHeader color="warning">
-              <h4 className={classes.cardTitleWhite}>Datos Apriori</h4>
-              <p className={classes.cardCategoryWhite}>Por favor, menciona el tipo de dataset</p>
+              <h4 className={classes.cardTitleWhite}>Análisis general de variables</h4>
+              <p className={classes.cardCategoryWhite}>Datos estadísticos del dataset</p>
               <input aligh="right" className={classes.input} type="file" accept=".csv,.xlsx,.xls" id="contained-button-file" onChange={handleFileUpload} />
           </CardHeader>
             <CardBody>

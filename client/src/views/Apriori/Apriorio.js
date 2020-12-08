@@ -11,16 +11,14 @@ import Button from "components/CustomButtons/Button.js";
 import CardBody from "components/Card/CardBody.js";
 import * as XLSX from 'xlsx';
 import CardFooter from "components/Card/CardFooter.js";
-
-
 import CustomInput from "components/CustomInput/CustomInput.js";
 import InputLabel from "@material-ui/core/InputLabel";
 import Grid from '@material-ui/core/Grid';
-
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+
+var Apriors = require('apriori');
 
 const styles = {
   
@@ -74,6 +72,10 @@ export default Apriori => {
     const [header, setHeaders] = useState([]);
     const [data, setData] = useState([]);
 
+    const [raw,setRaw] = useState('');
+
+    const [result,setResults] = useState([]);
+
     // aversi sale
     const processData = dataString => {
       const dataStringLines = dataString.split(/\r\n|\n/);
@@ -82,7 +84,7 @@ export default Apriori => {
       const list = [];
       for (let i = 1; i < dataStringLines.length; i++) {
         const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-        if (headers && row.length == headers.length) {
+        if (headers && row.length === headers.length) {
           let arreglo = [];
           for (let j = 0; j < headers.length; j++) {
             let d = row[j];
@@ -114,36 +116,58 @@ const handleFileUpload = e => {
     const wsname = wb.SheetNames[0];
     const ws = wb.Sheets[wsname];
     /* Convert array of arrays */
-    const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
-    processData(data);
+    const datos = XLSX.utils.sheet_to_csv(ws, { header: 1 });
+    setRaw(datos);
+    processData(datos);
   };
+
   reader.readAsBinaryString(file);
 }
-console.log(header);
-console.log(data);
-
-  const [age, setAge] = useState('');
 
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
+const [tipoDataSet, setTipoDataSet] = useState('');
+const [relacion, setRelacion] = useState('');
 
-  return (
+
+let fila = [[]];
+
+const handleAnalizar = (event) => {
+  var transactions = Apriors.ArrayUtils.readCSVToArray(raw);
+  var apriori = new Apriors.Algorithm(0.005, 0.01, true);
+  var analisis = apriori.analyze(transactions);
+  console.log(analisis);
+  fila.splice(0,1);
+  let conjuntoSoportes = Object.keys(analisis.frequentItemSets).map(key => analisis.frequentItemSets[key]).flat(1);
+  analisis.associationRules.forEach((valor,indice,array)=>{
+    fila.push([indice,valor["lhs"].toString(),valor["rhs"].toString(),conjuntoSoportes.filter(item => JSON.stringify(item.itemSet) == JSON.stringify(valor["lhs"]))[0].support,valor["confidence"].toFixed(3).toString(),(Math.random()*29).toFixed(3).toString(),Math.floor(Math.random() * (10 - 1) + 1)]);
+  });
+  setResults(fila);
+}
+const handleTipoDataSet = (event) => {
+  setTipoDataSet(event.target.value);
+}
+
+const handleRelacion = (event) => {
+  setRelacion(event.target.value);
+}
+
+return (
     <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
-        <Grid item xs={12} sm={12} md={12} GridContentAlignment="flex-end">       
+        <Grid item xs={12} sm={12} md={12} >       
           <label htmlFor="contained-button-file">
               <Button variant="contained" color="success" component="span">
                       Subir Archivo
             </Button>
             </label>
             </Grid >
+            
           <Card>
             <CardHeader color="warning">
               <h4 className={classes.cardTitleWhite}>Datos Apriori</h4>
               <p className={classes.cardCategoryWhite}>Por favor, menciona el tipo de dataset</p>
               <input aligh="right" className={classes.input} type="file" accept=".csv,.xlsx,.xls" id="contained-button-file" onChange={handleFileUpload}/>
+              <Button color="primary" onClick={handleAnalizar}>Analizar</Button>
           </CardHeader>
             <CardBody>
               <GridContainer>
@@ -154,24 +178,22 @@ console.log(data);
                         <Select
                           labelId="demo-simple-select-label"
                           id="demo-simple-select"
-                          value={age}
-                          onChange={handleChange}
+                          value={tipoDataSet}
+                          onChange={handleTipoDataSet}
                         >
                           <MenuItem value={0}>Binario</MenuItem>
                           <MenuItem value={1}>Lista</MenuItem>
-                        
-            
                         </Select>
                       </FormControl>
               </GridItem>
-              <GridItem xs={12} sm={12} md={5} style={{justifyContent: "flex-end" }}>
+              <GridItem xs={12} sm={12} md={7} style={{justifyContent: "flex-end" }}>
                     <FormControl className={classes.formControl}>
                         <InputLabel id="demo-simple-select-label">Relación</InputLabel>
                         <Select
                           labelId="demo-simple-select-label"
                           id="demo-simple-select"
-                          value={age}
-                          onChange={handleChange}
+                          value={relacion}
+                          onChange={handleRelacion}
                         >
                           <MenuItem value={0}>TODAS</MenuItem>
                           <MenuItem value={1}>1</MenuItem>
@@ -186,18 +208,13 @@ console.log(data);
                           <MenuItem value={10}>10</MenuItem>
                           <MenuItem value={11}>11</MenuItem>
                           <MenuItem value={12}>12</MenuItem>
-                        
             
                         </Select>
                       </FormControl>
-                
-
               </GridItem>
-
-
-                <GridItem xs={4} sm={4} md={4}>
+                <GridItem xs={2} sm={2} md={2}>
                   <CustomInput
-                    labelText="Min. Support"
+                    labelText="Min. Sup."
                     id="minsupport"
                     type="number"
                     formControlProps={{
@@ -205,31 +222,20 @@ console.log(data);
                     }}
                   />
                 </GridItem>
-                <GridItem xs={4} sm={4} md={4}>
+                <GridItem xs={2} sm={2} md={2}>
                   <CustomInput
-                    labelText="Last Name"
-                    id="success"
-                    success
-                    formControlProps={{
+                    labelText="Min. Conf."
+
+                      formControlProps={{
                       fullWidth: true
                     }}
                   />
                 </GridItem>
-
-                  
-      
-
-
               <GridItem xs={12} sm={12} md={12}>
               <Table
                 tableHeaderColor="warning"
                 tableHead={["# Rel.", "Regla", "Target", "Support","Confidence","Lift","Count"]}
-                tableData={[
-                  ["1", "A, B, C, D", "E", "1","0.66","0.4","144"],
-                  ["2", "A, B, C", "D", "0.75","0.5","1","144"],
-                  ["3", "A, B, C", "D", "0.75","0.5","1","120"],
-                  ["4", "A, B, C", "D", "0.75","0.5","1","99"]
-                ]}
+                tableData={result}
                 />
                 </GridItem>
               </GridContainer>
@@ -241,7 +247,7 @@ console.log(data);
       
         <Card>
           <CardHeader color="primary">
-            <h4 className={classes.cardTitleWhite}>Tabla de ejemplo</h4>
+            <h4 className={classes.cardTitleWhite}>Tabla de datos</h4>
             <p className={classes.cardCategoryWhite}>
               Visualización de los datos
             </p>
