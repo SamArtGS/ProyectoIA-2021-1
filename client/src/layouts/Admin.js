@@ -82,7 +82,7 @@ export default function Admin({ ...rest }) {
     <div className={classes.wrapper}>
       <Sidebar
         routes={routes}
-        logoText={"Risa Artificial"}
+        logoText={"IA Proyecto SSA"}
         logo={logo}
         image={image}
         handleDrawerToggle={handleDrawerToggle}

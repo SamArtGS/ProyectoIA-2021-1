@@ -14,12 +14,12 @@ import CardFooter from "components/Card/CardFooter.js";
 import CustomInput from "components/CustomInput/CustomInput.js";
 import InputLabel from "@material-ui/core/InputLabel";
 import Grid from '@material-ui/core/Grid';
-
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import * as d3 from "d3";
+import Plot from 'react-plotly.js'; // El precioso
+import TeX from '@matejmazur/react-katex';
 
 const styles = {
   
@@ -64,190 +64,65 @@ const styles = {
   
 };
 
-
-
-
-
-
-
-
-
 const useStyles = makeStyles(styles);
+const pcorr = require( 'compute-pcorr' );
 
 export default Dashboard => {
-  const matrizCorrelacion = useRef('');
-  
-
+  const [matrizCorrelacion,setmatrizCorrelacion] = useState([]);
   const classes = useStyles();
+  const [columns, setColumns] = useState([]);
+  const [header, setHeaders] = useState([]);
+  const [data, setData] = useState([]);
 
-  const [data2, setData2] = useState([]);
+  const [age, setAge] = useState('');
 
-
-  const handleMatriz = (evento) => {
-                let margin = {top: 20, right: 20, bottom: 20, left: 20},
-                width = 100 - margin.left - margin.right,
-                height = 100 - margin.top - margin.bottom
-                
-
-              // Crear el SVG, para mostrar la matriz de correlación, uso del hook, TODO: Custom hook
-
-              let svg = d3.select(matrizCorrelacion.current)
-              .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-              .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-                d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_correlogram.csv", function(error, rows) {
-
-                // Going from wide to long format
-                let arreglito = [];
-                rows.forEach((d) => {
-                  let x = d[""];
-                  delete d[""];
-                  for (let i=0;i<d.length;i++) {
-                    let y = i;
-                      let value = d[i];
-                      arreglito.push({
-                      x: x,
-                      y: y,
-                      value: +value
-                    });
-                  }
-                });
-
-                setData2(arreglito);
-
-                // List of all variables and number of them
-                let domain = d3.set(data2.map(d =>  d.x )).values()
-
-                // Create a color scale
-                let color = d3.scaleLinear()
-                  .domain([-1, 0, 1])
-                  .range(["#B22222", "#fff", "#000080"]);
-
-                // Create a size scale for bubbles on top right. Watch out: must be a rootscale!
-                let size = d3.scaleSqrt()
-                  .domain([0, 1])
-                  .range([0, 9]);
-
-                // X scale
-                let x = d3.scalePoint()
-                  .range([0, width])
-                  .domain(domain)
-
-                // Y scale
-                var y = d3.scalePoint()
-                  .range([0, height])
-                  .domain(domain)
-
-                // Create one 'g' element for each cell of the correlogram
-
-                let cor = svg.selectAll(cor)
-                  .data(data2)
-                  .enter()
-                  .append("g")
-                    .attr("class", "cor")
-                    .attr("transform", function(d) {
-                      return "translate(" + x(d.x) + "," + y(d.y) + ")";
-                    });
-
-                // Low left part + Diagonal: Add the text with specific color
-                cor.filter(function(d){
-                    var ypos = domain.indexOf(d.y);
-                    var xpos = domain.indexOf(d.x);
-                    return xpos <= ypos;
-                  })
-                  .append("text")
-                    .attr("y", 5)
-                    .text(function(d) {
-                      if (d.x === d.y) {
-                        return d.x;
-                      } else {
-                        return d.value.toFixed(2);
-                      }
-                    })
-                    .style("font-size", 11)
-                    .style("text-align", "center")
-                    .style("fill", function(d){
-                      if (d.x === d.y) {
-                        return "#000";
-                      } else {
-                        return color(d.value);
-                      }
-                    });
-
-
-                // Up right part: add circles
-                cor.filter(function(d){
-                    var ypos = domain.indexOf(d.y);
-                    var xpos = domain.indexOf(d.x);
-                    return xpos > ypos;
-                  })
-                  .append("circle")
-                    .attr("r", function(d){ return size(Math.abs(d.value)) })
-                    .style("fill", function(d){
-                      if (d.x === d.y) {
-                        return "#000";
-                      } else {
-                        return color(d.value);
-                      }
-                    })
-                    .style("opacity", 0.8)
-
-                });
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
+    
+  // process CSV data
+  const processData = dataString => {
+    const dataStringLines = dataString.split(/\r\n|\n/);
+    const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
+    let listaNum = [];
+    const list = [];
+    for (let i = 1; i < dataStringLines.length; i++) {
+      const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
+      if (headers && row.length == headers.length) {
+        let arreglo = [];
+        for (let j = 0; j < headers.length; j++) {
+          let d = row[j];
+          if (d.length > 0) {
+            if (d[0] == '"')
+              d = d.substring(1, d.length - 1);
+            if (d[d.length - 1] == '"')
+              d = d.substring(d.length - 2, 1);
+          }
+          arreglo.push(d);
+        }
+        list.push(arreglo);
+        listaNum.push(arreglo.map((x,j,a)=>{
+          return parseFloat(x);
+        }));
+      }
+    }
+    // prepare columns list from headers
+    const columns = headers.map(c => ({
+      name: c,
+      selector: c,
+    }));
+    console.log(listaNum);
+    let matrizcorr = pcorr(listaNum[0].map((_, c) => listaNum.map(r => r[c])));
+    console.log(matrizcorr);
+    setmatrizCorrelacion(matrizcorr);
+    setHeaders(headers);
+    setData(list);
+    setColumns(columns);
 
   }
-
-
-
-
-
-
-    const [columns, setColumns] = useState([]);
-    const [header, setHeaders] = useState([]);
-    const [data, setData] = useState([]);
-
-    // process CSV data
-    const processData = dataString => {
-      const dataStringLines = dataString.split(/\r\n|\n/);
-      const headers = dataStringLines[0].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-      
-      const list = [];
-      for (let i = 1; i < dataStringLines.length; i++) {
-        const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/);
-        if (headers && row.length == headers.length) {
-          let arreglo = [];
-          for (let j = 0; j < headers.length; j++) {
-            let d = row[j];
-            if (d.length > 0) {
-              if (d[0] == '"')
-                d = d.substring(1, d.length - 1);
-              if (d[d.length - 1] == '"')
-                d = d.substring(d.length - 2, 1);
-            }
-            arreglo.push(d);
-          }
-          list.push(arreglo);
-        }
-      }
-      // prepare columns list from headers
-      const columns = headers.map(c => ({
-        name: c,
-        selector: c,
-      }));
-
-
-      setHeaders(headers);
-      setData(list);
-      setColumns(columns);
-
-    }
   
 // handle file upload
 const handleFileUpload = e => {
-  handleMatriz(e);
   const file = e.target.files[0];
   const reader = new FileReader();
   reader.onload = (evt) => {
@@ -263,15 +138,8 @@ const handleFileUpload = e => {
   };
   reader.readAsBinaryString(file);
 }
-console.log(header);
-console.log(data);
-
-  const [age, setAge] = useState('');
 
 
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
 
   return (
     <GridContainer>
@@ -291,43 +159,23 @@ console.log(data);
           </CardHeader>
             <CardBody>
               <GridContainer>
+                <GridItem>
+                <p>
+              El coeficiente de correlación de Pearson es una prueba que mide la relación estadística entre dos variables continuas. 
+              Si la asociación entre los elementos no es lineal, entonces el coeficiente no se encuentra representado adecuadamente.
+              </p>
+              <p>
+              El coeficiente de correlación puede tomar un rango de valores de +1 a -1. Un valor de 0 indica que no hay asociación entre las dos variables. 
+              Un valor mayor que 0 indica una asociación positiva. Es decir, a medida que aumenta el valor de una variable, también lo hace el valor de la otra. 
+              Un valor menor que 0 indica una asociación negativa; es decir, a medida que aumenta el valor de una variable, el valor de la otra disminuye.
+              </p>
+              
+              
+              <TeX block math={` r_{xy} = \\frac{ \\sum Z_x Z_y}{ { N }}`}  />
+       
 
-              <GridItem xs={12} sm={12} md={12}>
-                    <FormControl className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-label">Num elementos a analizar</InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={age}
-                          onChange={handleChange}
-                        >
-                          
-                          <MenuItem value={10}>1</MenuItem>
-                          <MenuItem value={20}>2</MenuItem>
-                          <MenuItem value={30}>3</MenuItem>
+                </GridItem>
 
-
-                        </Select>
-                      </FormControl>
-              </GridItem>
-              <GridItem xs={12} sm={12} md={4}>
-                    <FormControl className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-label">Elemento</InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={age}
-                          onChange={handleChange}
-                        >
-                          
-                          <MenuItem value={10}>1</MenuItem>
-                          <MenuItem value={20}>2</MenuItem>
-                          <MenuItem value={30}>3</MenuItem>
-
-
-                        </Select>
-                      </FormControl>
-              </GridItem>
               </GridContainer>
             </CardBody>
             <CardFooter>
@@ -349,14 +197,28 @@ console.log(data);
         </CardHeader>
         <CardBody>
           
-        <div ref={matrizCorrelacion} ></div>
+            <Plot
+                    data={[{
+                      x: header,
+                      y: header,
+                      z: matrizCorrelacion,
+                      type:  'heatmap',
+                      showscale: false
+                    }]}
+                    useResizeHandler = {true}
+                    layout={ { title: 'Matriz de Correlación', 
+                    autosize : true, 
+                    
+                      } }
+                    
+                    style={{width: "100%", height: "100%"}}
+
+                  />
+
+
         </CardBody>
       </Card>
     </GridItem>
-
-
-
-
 
       <GridItem xs={12} sm={12} md={12}>
       

@@ -17,16 +17,14 @@
 */
 // @material-ui/icons
 import Dashboard from "@material-ui/icons/Dashboard";
-import Person from "@material-ui/icons/Person";
-import LibraryBooks from "@material-ui/icons/LibraryBooks";
-import BubbleChart from "@material-ui/icons/BubbleChart";
-import LocationOn from "@material-ui/icons/LocationOn";
-import Notifications from "@material-ui/icons/Notifications";
-import Language from "@material-ui/icons/Language";
 import StartRate from "@material-ui/icons/StarRate";
 import Cached from "@material-ui/icons/Cached";
 import Bubble_Chart from "@material-ui/icons/BubbleChart";
 import Straighten from "@material-ui/icons/Straighten";
+import GraphEq from "@material-ui/icons/GraphicEq";
+import RegLS from "@material-ui/icons/ShowChart";
+import RegLM from "@material-ui/icons/MultilineChartOutlined";
+import Hospital from "@material-ui/icons/LocalHospital";
 
 // core components/views for Admin layout
 import DashboardPage from "views/Dashboard/Dashboard.js";
@@ -34,7 +32,8 @@ import Apriori from "views/Apriori/Apriorio.js";
 import CoPearson from "views/CoPearson/CoPearson.js";
 
 import UserProfile from "views/UserProfile/UserProfile.js";
-import TableList from "views/TableList/TableList.js";
+import Distancias from "views/Distancias/Distancias.js";
+import Clustering from "views/Clustering/Clustering.js";
 import Typography from "views/Typography/Typography.js";
 import Icons from "views/Icons/Icons.js";
 import Maps from "views/Maps/Maps.js";
@@ -42,7 +41,7 @@ import Maps from "views/Maps/Maps.js";
 
 const dashboardRoutes = [
   {
-    path: "/dashboard",
+    path: "/tablero",
     name: "Tablero",
     rtlName: "Tablero",
     icon: Dashboard,
@@ -59,31 +58,46 @@ const dashboardRoutes = [
   },
   {
     path: "/copearson",
-    name: "CoRel de Pearson",
+    name: "Correlación de Pearson",
     rtlName: "Ninguno",
     icon: Cached,
     component: CoPearson,
     layout: "/admin"
   },
   {
-    path: "/user",
+    path: "/distancias",
     name: "Distancias",
-    icon: LocationOn,
-    component: UserProfile,
+    icon: Straighten,
+    component: Distancias,
     layout: "/admin"
   },
   {
-    path: "/typography",
-    name: "Ap. No Supervisado",
+    path: "/clusteringparticional",
+    name: "Clustering Particional",
     icon: Bubble_Chart,
+    component: Clustering,
+    layout: "/admin"
+  },
+  {
+    path: "/regresionlinealsimple",
+    name: "Reg. Lineal Simple",
+    icon: RegLS,
+    component: Typography,
+    layout: "/admin"
+  },
+
+  {
+    path: "/regresionlinealmultiple",
+    name: "Reg. Logística",
+    icon: RegLM,
     component: Typography,
     layout: "/admin"
   },
   {
-    path: "/table",
-    name: "Ap. Supervisado",
-    icon: Straighten,
-    component: TableList,
+    path: "/diagnosticomedico",
+    name: "Diagnóstico Médico",
+    icon: Hospital,
+    component: Typography,
     layout: "/admin"
   }
 ];

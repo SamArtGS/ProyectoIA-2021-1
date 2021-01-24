@@ -17,6 +17,7 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import TextField from '@material-ui/core/TextField';
 
 var Apriors = require('apriori');
 
@@ -38,7 +39,7 @@ const styles = {
     display: 'none',
   },
   formControl: {
-    margin: 0,
+    margin: 1,
     fontSize: "14px",
     minWidth: 250,
   },
@@ -71,10 +72,11 @@ export default Apriori => {
     const [columns, setColumns] = useState([]);
     const [header, setHeaders] = useState([]);
     const [data, setData] = useState([]);
-
     const [raw,setRaw] = useState('');
-
     const [result,setResults] = useState([]);
+    const [soporte,setSoporte] = useState(0.1);
+    const [confianza,setConfianza] = useState(0.1);
+
 
     // aversi sale
     const processData = dataString => {
@@ -129,17 +131,24 @@ const [tipoDataSet, setTipoDataSet] = useState('');
 const [relacion, setRelacion] = useState('');
 
 
-let fila = [[]];
+let fila = [];
 
 const handleAnalizar = (event) => {
   var transactions = Apriors.ArrayUtils.readCSVToArray(raw);
-  var apriori = new Apriors.Algorithm(0.005, 0.01, true);
+  var apriori = new Apriors.Algorithm(soporte, confianza, true);
   var analisis = apriori.analyze(transactions);
   console.log(analisis);
   fila.splice(0,1);
   let conjuntoSoportes = Object.keys(analisis.frequentItemSets).map(key => analisis.frequentItemSets[key]).flat(1);
-  analisis.associationRules.forEach((valor,indice,array)=>{
-    fila.push([indice,valor["lhs"].toString(),valor["rhs"].toString(),conjuntoSoportes.filter(item => JSON.stringify(item.itemSet) == JSON.stringify(valor["lhs"]))[0].support,valor["confidence"].toFixed(3).toString(),(Math.random()*29).toFixed(3).toString(),Math.floor(Math.random() * (10 - 1) + 1)]);
+  analisis.associationRules.forEach( (valor,indice,array)=>{
+    fila.push([
+      indice,
+      valor["lhs"].toString(),
+      valor["rhs"].toString(),
+      conjuntoSoportes.filter(item => JSON.stringify(item.itemSet) == JSON.stringify(valor["lhs"]))[0].support.toFixed(5),
+      valor["confidence"].toFixed(5).toString(),
+      (valor["confidence"].toFixed(5).toString()/conjuntoSoportes.filter(item => JSON.stringify(item.itemSet) == JSON.stringify(valor["rhs"]))[0].support).toFixed(5).toString(),
+      Math.floor(Math.random() * (10 - 1) + 1)]);
   });
   setResults(fila);
 }
@@ -151,6 +160,14 @@ const handleRelacion = (event) => {
   setRelacion(event.target.value);
 }
 
+const handleChangeSoporte = (event) => {
+  setSoporte(event.target.value);
+}
+
+const handleChangeConfianza = (event) => {
+  setConfianza(event.target.value);
+}
+
 return (
     <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
@@ -160,81 +177,40 @@ return (
                       Subir Archivo
             </Button>
             </label>
+            <input aligh="right" className={classes.input} type="file" accept=".csv,.xlsx,.xls" id="contained-button-file" onChange={handleFileUpload}/>
+              <Button color="danger" onClick={handleAnalizar}>Analizar</Button>
             </Grid >
             
           <Card>
             <CardHeader color="warning">
               <h4 className={classes.cardTitleWhite}>Datos Apriori</h4>
               <p className={classes.cardCategoryWhite}>Por favor, menciona el tipo de dataset</p>
-              <input aligh="right" className={classes.input} type="file" accept=".csv,.xlsx,.xls" id="contained-button-file" onChange={handleFileUpload}/>
-              <Button color="primary" onClick={handleAnalizar}>Analizar</Button>
+              
           </CardHeader>
             <CardBody>
               <GridContainer>
 
-              <GridItem xs={12} sm={12} md={5}>
-                    <FormControl className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-label">Tipo de Dataset</InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={tipoDataSet}
-                          onChange={handleTipoDataSet}
-                        >
-                          <MenuItem value={0}>Binario</MenuItem>
-                          <MenuItem value={1}>Lista</MenuItem>
-                        </Select>
-                      </FormControl>
-              </GridItem>
-              <GridItem xs={12} sm={12} md={7} style={{justifyContent: "flex-end" }}>
-                    <FormControl className={classes.formControl}>
-                        <InputLabel id="demo-simple-select-label">Relación</InputLabel>
-                        <Select
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={relacion}
-                          onChange={handleRelacion}
-                        >
-                          <MenuItem value={0}>TODAS</MenuItem>
-                          <MenuItem value={1}>1</MenuItem>
-                          <MenuItem value={2}>2</MenuItem>
-                          <MenuItem value={3}>3</MenuItem>
-                          <MenuItem value={4}>4</MenuItem>
-                          <MenuItem value={5}>5</MenuItem>
-                          <MenuItem value={6}>6</MenuItem>
-                          <MenuItem value={7}>7</MenuItem>
-                          <MenuItem value={8}>8</MenuItem>
-                          <MenuItem value={9}>9</MenuItem>
-                          <MenuItem value={10}>10</MenuItem>
-                          <MenuItem value={11}>11</MenuItem>
-                          <MenuItem value={12}>12</MenuItem>
             
-                        </Select>
-                      </FormControl>
-              </GridItem>
-                <GridItem xs={2} sm={2} md={2}>
-                  <CustomInput
-                    labelText="Min. Sup."
-                    id="minsupport"
-                    type="number"
-                    formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
+                <GridItem xs={4} sm={2} md={2}>
+                <TextField
+                        label="Soporte"
+                        value={soporte}
+                        onChange={handleChangeSoporte}
+                       
+                      />
                 </GridItem>
-                <GridItem xs={2} sm={2} md={2}>
-                  <CustomInput
-                    labelText="Min. Conf."
-
-                      formControlProps={{
-                      fullWidth: true
-                    }}
-                  />
+                <GridItem xs={4} sm={2} md={2}>
+                <TextField
+                        label="Confianza"
+                        value={confianza}
+                        onChange={handleChangeConfianza}
+                       
+                      />
                 </GridItem>
               <GridItem xs={12} sm={12} md={12}>
               <Table
                 tableHeaderColor="warning"
-                tableHead={["# Rel.", "Regla", "Target", "Support","Confidence","Lift","Count"]}
+                tableHead={["# Rel.", "Regla", "Target", "Soporte","Confianza","Lift","Cuenta"]}
                 tableData={result}
                 />
                 </GridItem>
