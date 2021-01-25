@@ -35,8 +35,6 @@ import UserProfile from "views/UserProfile/UserProfile.js";
 import Distancias from "views/Distancias/Distancias.js";
 import Clustering from "views/Clustering/Clustering.js";
 import Typography from "views/Typography/Typography.js";
-import Icons from "views/Icons/Icons.js";
-import Maps from "views/Maps/Maps.js";
 
 
 const dashboardRoutes = [

@@ -180,10 +180,35 @@ return (
             <input aligh="right" className={classes.input} type="file" accept=".csv,.xlsx,.xls" id="contained-button-file" onChange={handleFileUpload}/>
               <Button color="danger" onClick={handleAnalizar}>Analizar</Button>
             </Grid >
-            
-          <Card>
+          </GridItem>
+
+          <GridItem xs={12} sm={12} md={12}>
+            <Card color="warning">
             <CardHeader color="warning">
-              <h4 className={classes.cardTitleWhite}>Datos Apriori</h4>
+            <h4 className={classes.cardTitleWhite}>Descripción general</h4>
+              <p className={classes.cardCategoryWhite}>Algoritmo</p>
+              </CardHeader>
+              <CardBody>
+              <div className={classes.typo}>
+              <p>
+              Los algoritmos de reglas de asociación tienen como objetivo encontrar relaciones dentro un conjunto de transacciones, en concreto, items o atributos que tienden a ocurrir de forma conjunta. 
+              En este contexto, el término transacción hace referencia a cada grupo de eventos que están asociados de alguna forma.
+              </p>
+              <p>
+              Se inicia identificando los items individuales que aparecen en el total de transacciones con una frecuencia por encima de un mínimo establecido por el usuario. 
+              A continuación, se sigue una estrategia bottom-up en la que se extienden los candidatos añadiendo un nuevo item y se eliminan aquellos que contienen un subconjunto infrecuente o 
+              que no alcanzan el soporte mínimo. Este proceso se repite hasta que el algoritmo no encuentra más ampliaciones exitosas de los itemsets previos o cuando se alcanza un tamaño máximo. 
+              Se procede a identificar los itemsets frecuentes y, a partir de ellos, crear reglas de asociación.
+              </p>
+            </div>
+            </CardBody>
+            </Card>
+          </GridItem>
+          
+          <GridItem xs={12} sm={12} md={12}>
+          <Card>
+            <CardHeader color="danger">
+              <h4 className={classes.cardTitleWhite}>Tabla datos apriori</h4>
               <p className={classes.cardCategoryWhite}>Por favor, menciona el tipo de dataset</p>
               
           </CardHeader>
@@ -193,7 +218,7 @@ return (
             
                 <GridItem xs={4} sm={2} md={2}>
                 <TextField
-                        label="Soporte"
+                        label="Min. Soporte"
                         value={soporte}
                         onChange={handleChangeSoporte}
                        
@@ -201,7 +226,7 @@ return (
                 </GridItem>
                 <GridItem xs={4} sm={2} md={2}>
                 <TextField
-                        label="Confianza"
+                        label="Min. Confianza"
                         value={confianza}
                         onChange={handleChangeConfianza}
                        
