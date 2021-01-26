@@ -7,7 +7,6 @@
   "dependencies": {
     "@material-ui/core": "4.10.0",
     "@material-ui/icons": "4.9.1",
-    "@tensorflow/tfjs-node": "^2.7.0",
     "apriori": "^1.0.7",
     "chartist": "0.10.1",
     "chroma-js": "^2.1.0",
@@ -17,6 +16,9 @@
     "data2grid": "^1.0.2",
     "history": "4.10.1",
     "jeezy": "^1.13.1",
+    "ml-logistic-regression": "^2.0.0",
+    "ml-regression-multivariate-linear": "^2.0.3",
+    "ml-regression-simple-linear": "^2.0.3",
     "node-kmeans": "^1.1.9",
     "perfect-scrollbar": "1.5.0",
     "plotly.js": "^1.58.4",

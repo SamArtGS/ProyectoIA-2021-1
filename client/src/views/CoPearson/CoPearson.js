@@ -11,15 +11,12 @@ import Button from "components/CustomButtons/Button.js";
 import CardBody from "components/Card/CardBody.js";
 import * as XLSX from 'xlsx';
 import CardFooter from "components/Card/CardFooter.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
-import InputLabel from "@material-ui/core/InputLabel";
 import Grid from '@material-ui/core/Grid';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import Plot from 'react-plotly.js'; // El precioso
 import TeX from '@matejmazur/react-katex';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from "@material-ui/core/InputLabel";
+import NativeSelect from '@material-ui/core/NativeSelect';
 
 const styles = {
   
@@ -65,12 +62,12 @@ const styles = {
 };
 
 const useStyles = makeStyles(styles);
-const pcorr = require( 'compute-pcorr' );
+const pcorr = require('compute-pcorr');
 
 export default Dashboard => {
   const [matrizCorrelacion,setmatrizCorrelacion] = useState([]);
   const classes = useStyles();
-  const [columns, setColumns] = useState([]);
+  const [listaNumerica, setListaNumerica] = useState([[1,2,3],[4,5,6],[7,8,9]]);
   const [header, setHeaders] = useState([]);
   const [data, setData] = useState([]);
 
@@ -106,19 +103,12 @@ export default Dashboard => {
         }));
       }
     }
-    // prepare columns list from headers
-    const columns = headers.map(c => ({
-      name: c,
-      selector: c,
-    }));
-    console.log(listaNum);
-    let matrizcorr = pcorr(listaNum[0].map((_, c) => listaNum.map(r => r[c])));
-    console.log(matrizcorr);
-    setmatrizCorrelacion(matrizcorr);
+    setListaNumerica(listaNum);
+    setmatrizCorrelacion(pcorr(listaNum[0].map((_, c) => listaNum.map(r => r[c]))));
+    console.log((listaNum[0].map((_, c) => listaNum.map(r => r[c])))[0]);
+    console.log((listaNum[0].map((_, c) => listaNum.map(r => r[c])))[1]);
     setHeaders(headers);
     setData(list);
-    setColumns(columns);
-
   }
   
 // handle file upload
@@ -138,6 +128,35 @@ const handleFileUpload = e => {
   };
   reader.readAsBinaryString(file);
 }
+
+const handleChangeVariable1 = (event) => {
+  setVariable1(event.target.value);
+};
+
+const handleChangeVariable2 = (event) => {
+  setVariable2(event.target.value);
+};
+
+const [variable1, setVariable1] = useState(0);
+const [variable2, setVariable2] = useState(1);
+
+// const GenerarGrafica = (event) =>{
+//   let arreglo = [];
+//   let contador = 1;
+//     arreglo.push(
+//       {
+//         x: elemento["cluster"].map( (integrante) => {
+//                return parseFloat(integrante[parseInt(x)]);
+//        }),
+//         y: elemento["cluster"].map( (integrante) => {
+//                return parseFloat(integrante[parseInt(y)]);
+//        }),
+//         type: 'scatter',
+//         mode: 'markers',
+//       }
+//     );
+//     contador++;
+// } 
 
 
 
@@ -213,6 +232,64 @@ const handleFileUpload = e => {
                     
                     style={{width: "100%", height: "100%"}}
 
+                  />
+
+
+                  <FormControl className={classes.formControl} style={{ margin: 8 }}>
+                        <InputLabel shrink htmlFor="age-native-label-placeholder">Variable absisa</InputLabel>
+                        <NativeSelect
+                            value={variable1}
+                            onChange={handleChangeVariable1}
+                          >
+                            <option value="">Ninguna</option>
+                            {header.map((value, index) => {
+                                return <option value={index}>{value}</option>
+                            })}
+                          </NativeSelect>
+                      </FormControl>
+                      <FormControl className={classes.formControl} style={{ margin: 8 }}>
+                        <InputLabel shrink htmlFor="age-native-label-placeholder">Variable ordenada</InputLabel>
+                        <NativeSelect
+                            value={variable2}
+                            onChange={handleChangeVariable2}
+                          >
+                            <option value="">Ninguna</option>
+                            {header.map((value, index) => {
+                                return <option value={index}>{value}</option>
+                            })}
+                          </NativeSelect>
+                      </FormControl>
+                  <Plot
+                    data={[{
+                      x: (listaNumerica[0].map((_, c) => listaNumerica.map(r => r[c])))[variable1],
+                      y: (listaNumerica[0].map((_, c) => listaNumerica.map(r => r[c])))[variable2],
+                      type: 'scatter',
+                      mode: 'markers',
+                      marker: {color: 'blue'},
+                      name: 'Elementos'
+                    }]}
+                    useResizeHandler = {true}
+                    layout={ { title: 'Relación Gráfica', autosize : true, 
+                    xaxis: {
+                      title: {
+                        text: header[variable1],
+                        font: {
+                          family: 'Courier New, monospace',
+                          color: '#000000'
+                        }
+                      },
+                    },
+                    yaxis: {
+                      title: {
+                        text: header[variable2],
+                        font: {
+                          family: 'Courier New, monospace',
+                          color: '#000000'
+                        }
+                      }
+                    }
+                    }}
+                    style={{width: "100%", height: "100%"}}
                   />
 
 

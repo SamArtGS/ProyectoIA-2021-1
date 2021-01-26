@@ -13,15 +13,9 @@ import CardHeader from "components/Card/CardHeader.js";
 import Button from "components/CustomButtons/Button.js";
 import CardBody from "components/Card/CardBody.js";
 import * as XLSX from 'xlsx';
-import CardFooter from "components/Card/CardFooter.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
-import InputLabel from "@material-ui/core/InputLabel";
 import Grid from '@material-ui/core/Grid';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import CustomTabs from "components/CustomTabs/CustomTabs.js";
-import NumberFormat from 'react-number-format';
+
 import TextField from '@material-ui/core/TextField';
 
 //Estilos propios de la página Distancias
@@ -254,14 +248,18 @@ return (
             <CardBody>
               
             <div className={classes.typo}>
-              <div className={classes.note}>Contenido</div>
               <p>
                 
             Las medidas de distancia entre poblaciones y dentro de poblaciones, 
             han sido ampliamente utilizadas en numerosos campas científicos: antropología, agricultura, biología, genética, economía, 
             lingiiística, psicología, sociología, etc. La noción de distancia estadística junto con sus propiedades constituyen una importante 
             herramienta, tanto en la estadística matemática como en el análisis de datos. 
-            En el primer caso porque mediante una distancia se
+              </p>
+              <p>
+              Se da, en general, el nombre de distancia o disimilaridad entre dos individuos i y j a una medida, indicada por d(i,j) , 
+              que mide el grado de semejanza, o a mejor decir de desemejanza, entre ambos objetos o individuos, en relación a un cierto número
+               de características cuantitativa y / o cualitativas. El valor de d(i,j) es siempre un valor no negativo, y cuanto mayor sea este 
+               valor mayor será la diferencia entre los individuos i y j.
               </p>
             </div>
             </CardBody>

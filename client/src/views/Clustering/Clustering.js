@@ -162,17 +162,17 @@ export default Clustering => {
 
   const handleChangeNumClustersChevisev = (event) => {
     setNumLabelsClusters(event.target.value);
-    Clusterizar(event.target.value,data,2,variable1Cheviseb.id,variable2Cheviseb);
+    Clusterizar(event.target.value,data,2,variable1Cheviseb,variable2Cheviseb);
   };
 
   const handleChangeNumClustersManhattan = (event) => {
     setNumLabelsClusters(event.target.value);
-    Clusterizar(event.target.value,data,3,variable1Manhattan.id,variable2Manhattan);
+    Clusterizar(event.target.value,data,3,variable1Manhattan,variable2Manhattan);
   };
 
   const handleChangeNumClustersMitosky = (event) => {
     setNumLabelsClusters(event.target.value);
-    Clusterizar(event.target.value,data,4,variable1Mitosky.id,variable2Mitosky);
+    Clusterizar(event.target.value,data,4,variable1Mitosky,variable2Mitosky);
   };
 
   const handleChangeVariable1Euclidiana = (event) => {
@@ -407,7 +407,7 @@ return (
                 a fin de minimizar la suma de los cuadrados dentro de cada grupo.
                 </p>
 
-                <TeX block math={`arg_s min  \\sum_{i=1}^k \\sum_{x \\in S_i}  || x - \\mu_i|| ^2 = arg_s min \\sum_{i=1}^k |S_i|Var S_i`}  />
+                <TeX block math={`\\small arg_s min  \\sum_{i=1}^k \\sum_{x \\in S_i}  || x - \\mu_i|| ^2 = arg_s min \\sum_{i=1}^k |S_i|Var S_i`}  />
 
             </div>
             </CardBody>

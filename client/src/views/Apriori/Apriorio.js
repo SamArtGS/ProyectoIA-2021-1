@@ -10,19 +10,12 @@ import CardHeader from "components/Card/CardHeader.js";
 import Button from "components/CustomButtons/Button.js";
 import CardBody from "components/Card/CardBody.js";
 import * as XLSX from 'xlsx';
-import CardFooter from "components/Card/CardFooter.js";
-import CustomInput from "components/CustomInput/CustomInput.js";
-import InputLabel from "@material-ui/core/InputLabel";
 import Grid from '@material-ui/core/Grid';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 
 var Apriors = require('apriori');
 
 const styles = {
-  
   cardCategoryWhite: {
     "&,& a,& a:hover,& a:focus": {
       color: "rgba(255,255,255,.62)",
@@ -221,7 +214,7 @@ return (
                         label="Min. Soporte"
                         value={soporte}
                         onChange={handleChangeSoporte}
-                       
+                        inputProps={{ inputMode: 'decimal' }}
                       />
                 </GridItem>
                 <GridItem xs={4} sm={2} md={2}>
@@ -229,7 +222,7 @@ return (
                         label="Min. Confianza"
                         value={confianza}
                         onChange={handleChangeConfianza}
-                       
+                        inputProps={{ inputMode: 'decimal' }}
                       />
                 </GridItem>
               <GridItem xs={12} sm={12} md={12}>
